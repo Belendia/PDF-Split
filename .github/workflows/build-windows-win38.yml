@@ -1,0 +1,33 @@
+name: Build Windows EXE (Py 3.8)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.8" # Win7-friendly target
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pypdf pyinstaller==5.13.2
+
+      - name: Build (portable folder)
+        run: |
+          pyinstaller --noconsole --onedir --name "PDF Splitter" app.py
+        shell: cmd
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdf-splitter-onedir-py38
+          path: dist\PDF Splitter\**
